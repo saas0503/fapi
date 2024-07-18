@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type App struct {
@@ -13,14 +14,15 @@ type App struct {
 
 func Create(prefix string) *App {
 	return &App{
-		Prefix: prefix,
+		Prefix: "/" + prefix,
 		mux:    make(Mux),
 	}
 }
 
 func (a *App) Registry(name string, module *Module) {
 	for k, v := range module.mux {
-		path := a.Prefix + name + k
+		routes := strings.Split(k, " ")
+		path := routes[0] + a.Prefix + name + routes[1]
 		a.mux[path] = v
 	}
 	module.mux = nil
