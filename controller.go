@@ -15,6 +15,7 @@ type Controller struct {
 func NewController(name string) *Controller {
 	return &Controller{
 		Name: "/" + name,
+		mux:  make(Mux),
 	}
 }
 
