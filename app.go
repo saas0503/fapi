@@ -23,6 +23,7 @@ func (a *App) Registry(name string, module *Module) {
 	for k, v := range module.mux {
 		routes := strings.Split(k, " ")
 		path := routes[0] + a.Prefix + name + routes[1]
+		fmt.Printf("Final path is: %s\n", path)
 		a.mux[path] = v
 	}
 	module.mux = nil
