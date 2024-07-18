@@ -14,6 +14,7 @@ type App struct {
 func Create(prefix string) *App {
 	return &App{
 		Prefix: prefix,
+		mux:    make(Mux),
 	}
 }
 
