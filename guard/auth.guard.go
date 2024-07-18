@@ -7,9 +7,9 @@ import (
 	"github.com/saas0503/factory-api/config"
 )
 
-type UserContext string
+type Token string
 
-const USER_CONTEXT UserContext = "user"
+const UserToken Token = "user"
 
 func Authentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -32,8 +32,8 @@ func Authentication(next http.Handler) http.Handler {
 			return
 		}
 
-		context := context.WithValue(r.Context(), USER_CONTEXT, payload)
-		r = r.WithContext(context)
+		ctx := context.WithValue(r.Context(), UserToken, payload)
+		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)
 	})
