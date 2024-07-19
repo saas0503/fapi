@@ -35,10 +35,10 @@ func (c *Controller) Auth() *Controller {
 
 // Validate and transform
 
-func (c *Controller) ValidateBody(payload interface{}) *Controller {
-	c.Middlewares = append(c.Middlewares, pipe.Body[payload])
-	return c
-}
+// func (c *Controller) ValidateBody(payload interface{}) *Controller {
+//	c.Middlewares = append(c.Middlewares, pipe.Body[payload])
+//	return c
+// }
 
 // Pagination
 
