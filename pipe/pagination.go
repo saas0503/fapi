@@ -2,6 +2,8 @@ package pipe
 
 import (
 	"context"
+	"errors"
+	"github.com/saas0503/factory-api/exception"
 	"net/http"
 	"strconv"
 )
@@ -27,12 +29,12 @@ func Pagination(next http.Handler) http.Handler {
 
 		intPage, err := strconv.Atoi(page)
 		if err != nil {
-			http.Error(w, "Invalid page parameter", http.StatusBadRequest)
+			exception.ThrowInvalidRequest(w, errors.New("invalid page parameter"))
 			return
 		}
 		intLimit, err := strconv.Atoi(limit)
 		if err != nil {
-			http.Error(w, "Invalid limit parameter", http.StatusBadRequest)
+			exception.ThrowInvalidRequest(w, errors.New("invalid limit parameter"))
 			return
 		}
 		offset := (intPage - 1) * intLimit

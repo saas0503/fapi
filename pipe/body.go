@@ -3,6 +3,7 @@ package pipe
 import (
 	"context"
 	"encoding/json"
+	"github.com/saas0503/factory-api/exception"
 	"net/http"
 )
 
@@ -15,15 +16,7 @@ func Body[P any](next http.Handler) http.Handler {
 		var payload P
 
 		if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Header().Set("Content-Type", "application/json")
-			err := json.NewEncoder(w).Encode(map[string]interface{}{
-				"status":  "fail",
-				"message": err.Error(),
-			})
-			if err != nil {
-				return
-			}
+			exception.ThrowInvalidRequest(w, err)
 			return
 		}
 

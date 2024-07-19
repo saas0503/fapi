@@ -2,6 +2,8 @@ package guard
 
 import (
 	"context"
+	"errors"
+	"github.com/saas0503/factory-api/exception"
 	"net/http"
 
 	"github.com/saas0503/factory-api/config"
@@ -17,18 +19,18 @@ func Authentication(next http.Handler) http.Handler {
 
 		cfg, err := config.Load(".")
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			exception.ThrowInternalServerError(w, err)
 			return
 		}
 
 		if accessToken = r.Header.Get("Authorization"); accessToken == "" {
-			http.Error(w, "Unauthorized", http.StatusUnauthorized)
+			exception.ThrowTokenRequired(w, errors.New("missing Authorization header"))
 			return
 		}
 
 		payload, err := VerifyToken(accessToken, cfg.AccessTokenPublicKey)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusUnauthorized)
+			exception.ThrowAuthFailed(w, err)
 			return
 		}
 

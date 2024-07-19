@@ -15,7 +15,7 @@ type Controller struct {
 
 func NewController(name string) *Controller {
 	return &Controller{
-		Name:        "/" + name,
+		Name:        IfSlashPrefixString(name),
 		Middlewares: []middleware{},
 		mux:         make(Mux),
 	}
