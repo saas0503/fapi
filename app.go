@@ -26,7 +26,7 @@ func (a *App) Registry(name string, module *Module) {
 		fmt.Printf("Final path is: %s\n", path)
 		a.mux[path] = v
 	}
-	module.mux = nil
+	module = nil
 }
 
 func (a *App) Listen(port int) {

@@ -7,7 +7,7 @@ type Module struct {
 }
 
 type ModuleOptions struct {
-	Controllers []Controller
+	Controllers []*Controller
 }
 
 func NewModule(opt ModuleOptions) *Module {
@@ -18,7 +18,7 @@ func NewModule(opt ModuleOptions) *Module {
 		for k, v := range c.mux {
 			mux[k] = v
 		}
-		c.mux = nil
+		c = nil
 	}
 
 	return &Module{

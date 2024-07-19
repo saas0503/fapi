@@ -70,12 +70,13 @@ func (c *Controller) Delete(path string, handler http.Handler) {
 }
 
 func (c *Controller) Register(method string, path string, handler http.Handler) {
-	route := fmt.Sprintf("%s %s%s", method, c.Name, path)
+	route := fmt.Sprintf("%s %s%s", method, c.Name, IfSlashPrefixString(path))
 
 	mergeHandler := handler
 	for _, m := range c.Middlewares {
 		mergeHandler = m(mergeHandler)
 	}
 
+	c.Middlewares = []middleware{}
 	c.mux[route] = mergeHandler
 }
