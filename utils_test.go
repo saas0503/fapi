@@ -28,3 +28,30 @@ func BenchmarkIfSlashPrefixString(b *testing.B) {
 		IfSlashPrefixString("api")
 	}
 }
+
+func TestToFormat(t *testing.T) {
+	var tests = []struct {
+		name  string
+		input string
+		want  string
+	}{
+		{"Api should be api", "Api", "api"},
+		{"Api /U S ER shoud be api/user", "Api /U S ER", "api/user"},
+		{"a P i / U s E r should be api/user", "a P i / U s E r", "api/user"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			ans := ToFormat(tt.input)
+			if ans != tt.want {
+				t.Errorf("ToFormat() = %v, want %v", ans, tt.want)
+			}
+		})
+	}
+}
+
+func BenchmarkToFormat(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		ToFormat("a P i / U s E r")
+	}
+}
