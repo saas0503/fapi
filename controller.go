@@ -33,13 +33,6 @@ func (c *Controller) Auth() *Controller {
 	return c
 }
 
-// Validate and transform
-
-// func (c *Controller) ValidateBody(payload interface{}) *Controller {
-//	c.Middlewares = append(c.Middlewares, pipe.Body[payload])
-//	return c
-// }
-
 // Pagination
 
 func (c *Controller) Pagination() *Controller {
@@ -49,27 +42,27 @@ func (c *Controller) Pagination() *Controller {
 
 // Common Method
 
-func (c *Controller) Get(path string, handler http.Handler) {
-	c.Register("GET", path, handler)
+func (c *Controller) Get(path string, handler func(http.ResponseWriter, *http.Request)) {
+	c.Handling("GET", path, http.HandlerFunc(handler))
 }
 
-func (c *Controller) Post(path string, handler http.Handler) {
-	c.Register("POST", path, handler)
+func (c *Controller) Post(path string, handler func(http.ResponseWriter, *http.Request)) {
+	c.Handling("POST", path, http.HandlerFunc(handler))
 }
 
-func (c *Controller) Patch(path string, handler http.Handler) {
-	c.Register("PATCH", path, handler)
+func (c *Controller) Patch(path string, handler func(http.ResponseWriter, *http.Request)) {
+	c.Handling("PATCH", path, http.HandlerFunc(handler))
 }
 
-func (c *Controller) Put(path string, handler http.Handler) {
-	c.Register("PUT", path, handler)
+func (c *Controller) Put(path string, handler func(http.ResponseWriter, *http.Request)) {
+	c.Handling("PUT", path, http.HandlerFunc(handler))
 }
 
-func (c *Controller) Delete(path string, handler http.Handler) {
-	c.Register("DELETE", path, handler)
+func (c *Controller) Delete(path string, handler func(http.ResponseWriter, *http.Request)) {
+	c.Handling("DELETE", path, http.HandlerFunc(handler))
 }
 
-func (c *Controller) Register(method string, path string, handler http.Handler) {
+func (c *Controller) Handling(method string, path string, handler http.Handler) {
 	route := fmt.Sprintf("%s %s%s", method, c.Name, IfSlashPrefixString(path))
 
 	mergeHandler := handler

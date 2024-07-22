@@ -8,6 +8,7 @@ type Module struct {
 
 type ModuleOptions struct {
 	Controllers []*Controller
+	Imports     []*Module
 }
 
 func NewModule(opt ModuleOptions) *Module {
@@ -19,6 +20,13 @@ func NewModule(opt ModuleOptions) *Module {
 			mux[k] = v
 		}
 		c = nil
+	}
+
+	for _, m := range opt.Imports {
+		for k, v := range m.mux {
+			mux[k] = v
+		}
+		m = nil
 	}
 
 	return &Module{
