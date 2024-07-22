@@ -60,6 +60,11 @@ func (r *Router) handle(method string, path string, handler http.Handler) {
 
 	fmt.Printf("Tha last path is: %s\n", route)
 	mergeHandler := handler
+
+	for _, mg := range r.GlobalMiddlewares {
+		mergeHandler = mg(mergeHandler)
+	}
+
 	for _, m := range r.middlewares {
 		mergeHandler = m(mergeHandler)
 	}
