@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"strings"
 )
 
 type App struct {
@@ -13,43 +12,23 @@ type App struct {
 	mux         Mux
 }
 
-func CreateApp(module *Module) *App {
-	app := &App{
-		Prefix:      "",
+func NewApp(prefix string) *App {
+	return &App{
+		Prefix:      IfSlashPrefixString(prefix),
 		Middlewares: []middleware{},
 		mux:         make(Mux),
 	}
-
-	for k, v := range module.mux {
-		fmt.Printf("Final path is: %s\n", k)
-		app.mux[k] = v
-	}
-	module = nil
-
-	return app
 }
 
 func (a *App) Use(middleware middleware) {
 	a.Middlewares = append(a.Middlewares, middleware)
 }
 
-func (a *App) SetGlobalPrefix(prefix string) {
-	a.Prefix = prefix
-}
-
 func (a *App) Listen(port int) {
 	router := http.NewServeMux()
 
 	for k, v := range a.mux {
-		routes := strings.Split(k, " ")
-		path := routes[0] + " " + a.Prefix + routes[1]
-
-		mergeHandler := v
-		for _, m := range a.Middlewares {
-			mergeHandler = m(mergeHandler)
-		}
-
-		router.Handle(path, mergeHandler)
+		router.Handle(k, v)
 	}
 
 	// Free allocation
