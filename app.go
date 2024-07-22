@@ -8,15 +8,21 @@ import (
 )
 
 type App struct {
-	Prefix string
-	mux    Mux
+	Prefix      string
+	Middlewares []middleware
+	mux         Mux
 }
 
 func Create(prefix string) *App {
 	return &App{
-		Prefix: IfSlashPrefixString(prefix),
-		mux:    make(Mux),
+		Prefix:      IfSlashPrefixString(prefix),
+		Middlewares: []middleware{},
+		mux:         make(Mux),
 	}
+}
+
+func (a *App) Use(middleware middleware) {
+	a.Middlewares = append(a.Middlewares, middleware)
 }
 
 func (a *App) Registry(name string, module *Module) {
@@ -35,6 +41,10 @@ func (a *App) Listen(port int) {
 	for k, v := range a.mux {
 		router.Handle(k, v)
 	}
+
+	// Free allocation
+	a.mux = nil
+	a.Middlewares = nil
 
 	server := http.Server{
 		Addr:    fmt.Sprintf(":%d", port),

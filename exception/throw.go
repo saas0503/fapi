@@ -28,7 +28,7 @@ func Throw(w http.ResponseWriter, code ErrorCode, err error) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(mapStatus(code))
 	response := map[string]interface{}{
-		"code":    code,
+		"status":  code,
 		"message": err.Error(),
 	}
 	er := json.NewEncoder(w).Encode(response)

@@ -36,7 +36,7 @@ func TestToFormat(t *testing.T) {
 		want  string
 	}{
 		{"Api should be api", "Api", "api"},
-		{"Api /U S ER shoud be api/user", "Api /U S ER", "api/user"},
+		{"Api /U S ER should be api/user", "Api /U S ER", "api/user"},
 		{"a P i / U s E r should be api/user", "a P i / U s E r", "api/user"},
 	}
 
