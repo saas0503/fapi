@@ -18,6 +18,7 @@ func NewModule(opt ModuleOptions) *Module {
 		for k, v := range c.mux {
 			mux[k] = v
 		}
+		c = nil
 	}
 
 	return &Module{

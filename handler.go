@@ -9,8 +9,8 @@ import (
 
 type ResponseOptions struct {
 	Data    interface{}
-	Total   *int
-	Message *string
+	Total   int
+	Message string
 }
 
 func TransformBody[P any](w http.ResponseWriter, r *http.Request) *P {
@@ -37,10 +37,16 @@ func TransformBody[P any](w http.ResponseWriter, r *http.Request) *P {
 
 func JSON(w http.ResponseWriter, res ResponseOptions) {
 	response := map[string]interface{}{
-		"status":  "success",
-		"data":    res.Data,
-		"message": *res.Message,
-		"total":   *res.Total,
+		"status": "success",
+		"data":   res.Data,
+	}
+
+	if res.Total != 0 {
+		response["total"] = res.Total
+	}
+
+	if res.Message != "" {
+		response["message"] = res.Message
 	}
 	w.Header().Set("Content-Type", "application/json")
 	err := json.NewEncoder(w).Encode(response)

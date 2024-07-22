@@ -32,6 +32,7 @@ func (a *App) Registry(name string, module *Module) {
 		fmt.Printf("Final path is: %s\n", path)
 		a.mux[path] = v
 	}
+	module = nil
 }
 
 func (a *App) Listen(port int) {
@@ -40,6 +41,10 @@ func (a *App) Listen(port int) {
 	for k, v := range a.mux {
 		router.Handle(k, v)
 	}
+
+	// Free allocation
+	a.mux = nil
+	a.Middlewares = nil
 
 	server := http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
