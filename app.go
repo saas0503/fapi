@@ -42,10 +42,6 @@ func (a *App) Listen(port int) {
 		router.Handle(k, v)
 	}
 
-	// Free allocation
-	a.mux = nil
-	a.Middlewares = nil
-
 	server := http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
 		Handler: router,
