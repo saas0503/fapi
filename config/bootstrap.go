@@ -1,6 +1,9 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"github.com/spf13/viper"
+	"strings"
+)
 
 type ApiConfig struct {
 	Port       int    `mapstructure:"PORT"`
@@ -22,6 +25,7 @@ func Load[C any](path string) (*C, error) {
 
 	viper.AddConfigPath(path)
 	viper.SetConfigFile(".env")
+	viper.SetEnvKeyReplacer(strings.NewReplacer(`.`, `_`))
 	viper.AutomaticEnv()
 
 	err = viper.ReadInConfig()
