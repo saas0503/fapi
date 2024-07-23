@@ -17,7 +17,7 @@ func Authentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var accessToken string
 
-		cfg, err := config.Load[config.ApiConfig](".")
+		cfg, err := config.Load[config.ApiConfig](config.ApiConfig{})
 		if err != nil {
 			exception.ThrowInternalServerError(w, err)
 			return
