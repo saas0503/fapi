@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/joho/godotenv"
 	common "github.com/saas0503/factory-common"
 	"log"
@@ -50,8 +51,10 @@ func Load[C any](c C) (*C, error) {
 			cfg[field.Name] = os.Getenv(tag)
 		}
 	}
+	fmt.Println(cfg)
+	var result = &c
 	for k, v := range cfg {
-		err := common.SetField(c, k, v)
+		err := common.SetField(result, k, v)
 		if err != nil {
 			return nil, err
 		}
