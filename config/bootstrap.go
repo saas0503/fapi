@@ -16,7 +16,10 @@ type ApiConfig struct {
 	RefreshTokenExpiresIn  int    `mapstructure:"REFRESH_TOKEN_EXPIRES_IN"`
 }
 
-func Load[C any](path string) (cfg *C, err error) {
+func Load[C any](path string) (*C, error) {
+	var cfg *C
+	var err error
+
 	viper.AddConfigPath(path)
 	viper.SetConfigFile(".env")
 	viper.AutomaticEnv()
@@ -31,5 +34,5 @@ func Load[C any](path string) (cfg *C, err error) {
 		return nil, err
 	}
 
-	return
+	return cfg, nil
 }
