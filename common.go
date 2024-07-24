@@ -2,9 +2,11 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
+	"net/http"
+
 	"github.com/saas0503/factory-api/exception"
 	"github.com/saas0503/factory-api/pipe"
-	"net/http"
 )
 
 type middleware func(http.Handler) http.Handler
@@ -25,14 +27,9 @@ func TransformBody[P any](w http.ResponseWriter, r *http.Request) *P {
 		return nil
 	}
 
-	errors := pipe.ValidateStruct(&payload)
-	if errors != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Header().Set("Content-Type", "application/json")
-		err := json.NewEncoder(w).Encode(errors)
-		if err != nil {
-			return nil
-		}
+	err := pipe.ValidateStruct(&payload)
+	if err != nil {
+		exception.ThrowInvalidRequest(w, errors.New(err[0]))
 		return nil
 	}
 
