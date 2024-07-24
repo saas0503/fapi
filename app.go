@@ -12,6 +12,7 @@ type App struct {
 	Prefix      string
 	Middlewares []middleware
 	mux         Mux
+	routes      map[string]bool
 }
 
 func NewApp(prefix string) *App {
@@ -30,19 +31,25 @@ func (a *App) EnableCors(opt cors.Options) {
 	a.cors = cors.New(opt)
 }
 
+func (a *App) routeExists(path string) bool {
+	return a.routes[path]
+}
+
 func (a *App) Listen(port int) {
 	router := http.NewServeMux()
+	a.routes = map[string]bool{}
 
 	for k, v := range a.mux {
 		fmt.Printf("The path is register %s\n", k)
 		router.Handle(k, v)
+		a.routes[k] = true
 	}
 
 	// Free allocation
 	a.mux = nil
 	a.Middlewares = nil
 
-	var handler = logRequest(router)
+	var handler = a.routeCheckerMiddleware(router)
 	if a.cors != nil {
 		handler = a.cors.Handler(router)
 	}
@@ -57,4 +64,16 @@ func (a *App) Listen(port int) {
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("Server failed to start: %s", err)
 	}
+}
+
+func (a *App) routeCheckerMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Check if route exists
+		if a.routeExists(r.URL.Path) {
+			next.ServeHTTP(w, r)
+		} else {
+			HandleNotFound(w, r)
+			return
+		}
+	})
 }
