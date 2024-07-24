@@ -2,13 +2,12 @@ package api
 
 import (
 	"fmt"
-	"github.com/rs/cors"
+	"github.com/saas0503/factory-api/interceptor"
 	"log"
 	"net/http"
 )
 
 type App struct {
-	cors        *cors.Cors
 	Prefix      string
 	Middlewares []middleware
 	mux         Mux
@@ -25,10 +24,6 @@ func NewApp(prefix string) *App {
 
 func (a *App) Use(middleware middleware) {
 	a.Middlewares = append(a.Middlewares, middleware)
-}
-
-func (a *App) EnableCors(opt cors.Options) {
-	a.cors = cors.New(opt)
 }
 
 func (a *App) routeExists(path string) bool {
@@ -50,10 +45,6 @@ func (a *App) Listen(port int) {
 	a.Middlewares = nil
 
 	var handler = a.routeCheckerMiddleware(router)
-	if a.cors != nil {
-		handler = a.cors.Handler(router)
-	}
-	a.cors = nil
 
 	server := http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
@@ -72,7 +63,7 @@ func (a *App) routeCheckerMiddleware(next http.Handler) http.Handler {
 		if a.routeExists(r.URL.Path) {
 			next.ServeHTTP(w, r)
 		} else {
-			HandleNotFound(w, r)
+			interceptor.HandleNotFound(w, r)
 			return
 		}
 	})
