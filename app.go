@@ -2,9 +2,10 @@ package api
 
 import (
 	"fmt"
-	"github.com/saas0503/factory-api/interceptor"
 	"log"
 	"net/http"
+
+	"github.com/saas0503/factory-api/interceptor"
 )
 
 type App struct {
@@ -60,7 +61,7 @@ func (a *App) Listen(port int) {
 func (a *App) routeCheckerMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Check if route exists
-		if a.routeExists(r.URL.Path) {
+		if a.routeExists(r.Method + " " + r.URL.Path) {
 			next.ServeHTTP(w, r)
 		} else {
 			interceptor.HandleNotFound(w, r)
