@@ -35,6 +35,7 @@ func (a *App) Listen(port int) {
 	router := http.NewServeMux()
 
 	for k, v := range a.mux {
+		fmt.Printf("The path is register %s\n", k)
 		router.Handle(k, v)
 	}
 
