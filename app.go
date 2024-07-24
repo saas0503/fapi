@@ -5,7 +5,6 @@ import (
 	"github.com/rs/cors"
 	"log"
 	"net/http"
-	"time"
 )
 
 type App struct {
@@ -58,14 +57,4 @@ func (a *App) Listen(port int) {
 	if err := server.ListenAndServe(); err != nil {
 		log.Fatalf("Server failed to start: %s", err)
 	}
-}
-
-func logRequest(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		start := time.Now()
-
-		next.ServeHTTP(w, r)
-		elapsed := time.Since(start)
-		log.Printf("Received request:  %s %s %s", r.Method, r.URL.Path, elapsed)
-	})
 }

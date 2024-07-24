@@ -3,6 +3,9 @@ package api
 import "strings"
 
 func IfSlashPrefixString(s string) string {
+	if strings.HasSuffix(s, "/") {
+		s = s[:len(s)-len("/")]
+	}
 	if strings.HasPrefix(s, "/") {
 		return ToFormat(s)
 	}

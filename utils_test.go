@@ -9,6 +9,7 @@ func TestIfSlashPrefixString(t *testing.T) {
 		want  string
 	}{
 		{"api should be /api", "api", "/api"},
+		{"api/users/ should be /api/users", "/api/users/", "/api/users"},
 		{"Api/Users should be /api/users", "Api/Users", "/api/users"},
 		{"api / users / aUth should be /api/users/auth", "api / users / aUth", "/api/users/auth"},
 	}
