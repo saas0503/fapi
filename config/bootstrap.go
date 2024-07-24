@@ -14,6 +14,7 @@ type ApiConfig struct {
 	Port       int    `mapstructure:"PORT"`
 	NodeEnv    string `mapstructure:"NODE_ENV"`
 	ApiContext string `mapstructure:"API_CONTEXT"`
+	RedisUrl   string `mapstructure:"REDIS_URL"`
 
 	AccessTokenPrivateKey string `mapstructure:"ACCESS_TOKEN_PRIVATE_KEY"`
 	AccessTokenPublicKey  string `mapstructure:"ACCESS_TOKEN_PUBLIC_KEY"`

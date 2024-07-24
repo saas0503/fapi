@@ -58,7 +58,6 @@ func (r *Router) Delete(path string, handler func(http.ResponseWriter, *http.Req
 func (r *Router) handle(method string, path string, handler http.Handler) {
 	route := fmt.Sprintf("%s %s%s", method, r.Name, IfSlashPrefixString(path))
 
-	fmt.Printf("The path were registered in router: %s\n", route)
 	mergeHandler := handler
 
 	for _, mg := range r.GlobalMiddlewares {
