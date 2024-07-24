@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"errors"
 	"net/http"
 
 	"github.com/saas0503/factory-api/exception"
@@ -27,9 +26,14 @@ func TransformBody[P any](w http.ResponseWriter, r *http.Request) *P {
 		return nil
 	}
 
-	err := pipe.ValidateStruct(&payload)
-	if err != nil {
-		exception.ThrowInvalidRequest(w, errors.New(err[0]))
+	errors := pipe.ValidateStruct(&payload)
+	if errors != nil {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(http.StatusBadRequest)
+		err := json.NewEncoder(w).Encode(errors)
+		if err != nil {
+			return nil
+		}
 		return nil
 	}
 
