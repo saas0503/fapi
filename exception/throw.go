@@ -31,8 +31,8 @@ func Throw(w http.ResponseWriter, code ErrorCode, err error) {
 		"status":  code,
 		"message": err.Error(),
 	}
-	er := json.NewEncoder(w).Encode(response)
-	if er != nil {
+	err = json.NewEncoder(w).Encode(response)
+	if err != nil {
 		return
 	}
 	return
