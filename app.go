@@ -2,10 +2,9 @@ package api
 
 import (
 	"fmt"
+	"github.com/saas0503/factory-api/interceptor"
 	"log"
 	"net/http"
-
-	"github.com/saas0503/factory-api/interceptor"
 )
 
 type App struct {
@@ -42,8 +41,8 @@ func (a *App) Listen(port int) {
 	}
 
 	// Free allocation
-	a.mux = nil
-	a.Middlewares = nil
+	clear(a.mux)
+	clear(a.Middlewares)
 
 	var handler = a.routeCheckerMiddleware(router)
 
@@ -54,6 +53,7 @@ func (a *App) Listen(port int) {
 
 	log.Printf("Starting server on http://localhost:%d", port)
 	if err := server.ListenAndServe(); err != nil {
+
 		log.Fatalf("Server failed to start: %s", err)
 	}
 }
