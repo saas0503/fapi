@@ -17,7 +17,7 @@ type Router struct {
 
 func (a *App) Group(name string, middlewares ...middleware) *Router {
 	return &Router{
-		Name:              name,
+		Name:              a.Prefix + IfSlashPrefixString(name),
 		GlobalMiddlewares: middlewares,
 		middlewares:       []middleware{},
 		app:               a,
