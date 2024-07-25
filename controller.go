@@ -2,10 +2,11 @@ package api
 
 import (
 	"fmt"
-	"github.com/saas0503/factory-api/guard"
-	"github.com/saas0503/factory-api/pipe"
 	"net/http"
 	"reflect"
+
+	"github.com/saas0503/factory-api/guard"
+	"github.com/saas0503/factory-api/pipe"
 )
 
 type Handler func(http.ResponseWriter, *http.Request)
@@ -21,14 +22,12 @@ const (
 )
 
 type Controller struct {
-	Prefix      string
 	Middlewares []middleware
 	mux         Mux
 }
 
 func NewController(prefix string, middlewares ...middleware) *Controller {
 	return &Controller{
-		Prefix:      prefix,
 		Middlewares: middlewares,
 		mux:         make(Mux),
 	}
@@ -37,6 +36,7 @@ func NewController(prefix string, middlewares ...middleware) *Controller {
 func (c *Controller) Registry(structs ...interface{}) {
 	for _, item := range structs {
 		ct := reflect.ValueOf(item).Elem()
+		prefix := ct.Type().Name()
 		for i := 0; i < ct.NumField(); i++ {
 			val := ct.Field(i)
 			handler := val.Interface().(Handler)
@@ -50,22 +50,22 @@ func (c *Controller) Registry(structs ...interface{}) {
 				c.Middlewares = append(c.Middlewares, pipe.Pagination)
 			}
 			if field.Tag.Get(string(GET)) != "" {
-				c.register("GET", field.Tag.Get(string(GET)), http.HandlerFunc(handler))
+				c.register("GET", prefix, field.Tag.Get(string(GET)), http.HandlerFunc(handler))
 			} else if field.Tag.Get(string(POST)) != "" {
-				c.register("POST", field.Tag.Get(string(POST)), http.HandlerFunc(handler))
+				c.register("POST", prefix, field.Tag.Get(string(POST)), http.HandlerFunc(handler))
 			} else if field.Tag.Get(string(PUT)) != "" {
-				c.register("PUT", field.Tag.Get(string(PUT)), http.HandlerFunc(handler))
+				c.register("PUT", prefix, field.Tag.Get(string(PUT)), http.HandlerFunc(handler))
 			} else if field.Tag.Get(string(PATCH)) != "" {
-				c.register("PATCH", field.Tag.Get(string(PATCH)), http.HandlerFunc(handler))
+				c.register("PATCH", prefix, field.Tag.Get(string(PATCH)), http.HandlerFunc(handler))
 			} else if field.Tag.Get(string(DELETE)) != "" {
-				c.register("DELETE", field.Tag.Get(string(DELETE)), http.HandlerFunc(handler))
+				c.register("DELETE", prefix, field.Tag.Get(string(DELETE)), http.HandlerFunc(handler))
 			}
 		}
 	}
 }
 
-func (c *Controller) register(method string, path string, handler http.Handler) {
-	route := fmt.Sprintf("%s %s%s", method, c.Prefix, IfSlashPrefixString(path))
+func (c *Controller) register(method string, prefix string, path string, handler http.Handler) {
+	route := fmt.Sprintf("%s %s%s", method, prefix, IfSlashPrefixString(path))
 
 	mergeHandler := handler
 

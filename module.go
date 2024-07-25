@@ -1,7 +1,6 @@
 package api
 
 type Module struct {
-	app *App
 	mux Mux
 }
 
