@@ -20,6 +20,7 @@ func (a *App) Group(name string, middlewares ...middleware) *Router {
 		Name:              name,
 		GlobalMiddlewares: middlewares,
 		middlewares:       []middleware{},
+		app:               a,
 	}
 }
 
