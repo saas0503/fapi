@@ -1,5 +1,6 @@
 package api
 
+/*
 import "github.com/saas0503/factory-api/guard"
 
 type Group struct {
@@ -33,3 +34,4 @@ func (g *Group) Registry() *Router {
 		group:             g,
 	}
 }
+*/

@@ -11,7 +11,22 @@ type Router struct {
 	Name              string
 	GlobalMiddlewares []middleware
 	middlewares       []middleware
-	group             *Group
+	/*	group             *Group */
+	app *App
+}
+
+func (a *App) Group(name string, middlewares ...middleware) *Router {
+	return &Router{
+		Name:              name,
+		GlobalMiddlewares: middlewares,
+		middlewares:       []middleware{},
+	}
+}
+
+func (r *Router) Version(version uint) *Router {
+	v := fmt.Sprintf("/v%d", version)
+	r.Name = r.Name + v
+	return r
 }
 
 func (r *Router) Use(middleware middleware) *Router {
@@ -69,5 +84,5 @@ func (r *Router) handle(method string, path string, handler http.Handler) {
 	}
 
 	r.middlewares = []middleware{}
-	r.group.app.mux[route] = mergeHandler
+	r.app.mux[route] = mergeHandler
 }
