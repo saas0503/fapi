@@ -5,21 +5,14 @@ import (
 	"github.com/saas0503/factory-api/interceptor"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type App struct {
 	Prefix      string
 	Middlewares []middleware
-	mux         Mux
+	module      *Module
 	routes      map[string]bool
-}
-
-func NewApp(prefix string) *App {
-	return &App{
-		Prefix:      IfSlashPrefixString(prefix),
-		Middlewares: []middleware{},
-		mux:         make(Mux),
-	}
 }
 
 func (a *App) Use(middleware middleware) {
@@ -30,18 +23,25 @@ func (a *App) routeExists(path string) bool {
 	return a.routes[path]
 }
 
+func (a *App) SetGlobalPrefix(prefix string) *App {
+	a.Prefix = IfSlashPrefixString(prefix)
+	return a
+}
+
 func (a *App) Listen(port int) {
 	router := http.NewServeMux()
 	a.routes = map[string]bool{}
 
-	for k, v := range a.mux {
+	for k, v := range a.module.mux {
 		fmt.Printf("The path is register %s\n", k)
-		router.Handle(k, v)
-		a.routes[k] = true
+		routes := strings.Split(k, " ")
+		path := routes[0] + " " + a.Prefix + routes[1]
+		router.Handle(path, v)
+		a.routes[path] = true
 	}
 
 	// Free allocation
-	clear(a.mux)
+	a.module = nil
 	clear(a.Middlewares)
 
 	var handler = a.routeCheckerMiddleware(router)

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"strings"
 
 	"github.com/saas0503/factory-api/guard"
 	"github.com/saas0503/factory-api/pipe"
@@ -22,14 +23,16 @@ const (
 )
 
 type Controller struct {
-	Middlewares []middleware
-	mux         Mux
+	ParentMiddlewares []middleware
+	middlewares       []middleware
+	mux               Mux
 }
 
-func NewController(prefix string, middlewares ...middleware) *Controller {
+func NewController(middlewares ...middleware) *Controller {
 	return &Controller{
-		Middlewares: middlewares,
-		mux:         make(Mux),
+		ParentMiddlewares: middlewares,
+		middlewares:       []middleware{},
+		mux:               make(Mux),
 	}
 }
 
@@ -37,17 +40,19 @@ func (c *Controller) Registry(structs ...interface{}) {
 	for _, item := range structs {
 		ct := reflect.ValueOf(item).Elem()
 		prefix := ct.Type().Name()
+		prefix = strings.ToLower(prefix)
+		prefix = strings.ReplaceAll(prefix, "controller", "")
 		for i := 0; i < ct.NumField(); i++ {
 			val := ct.Field(i)
 			handler := val.Interface().(Handler)
 			field := ct.Type().Field(i)
 			auth := field.Tag.Get("guard")
 			if auth == "authentication" {
-				c.Middlewares = append(c.Middlewares, guard.Authentication)
+				c.middlewares = append(c.middlewares, guard.Authentication)
 			}
 			pagination := field.Tag.Get("pagination")
 			if pagination == "true" {
-				c.Middlewares = append(c.Middlewares, pipe.Pagination)
+				c.middlewares = append(c.middlewares, pipe.Pagination)
 			}
 			if field.Tag.Get(string(GET)) != "" {
 				c.register("GET", prefix, field.Tag.Get(string(GET)), http.HandlerFunc(handler))
@@ -65,14 +70,18 @@ func (c *Controller) Registry(structs ...interface{}) {
 }
 
 func (c *Controller) register(method string, prefix string, path string, handler http.Handler) {
-	route := fmt.Sprintf("%s %s%s", method, prefix, IfSlashPrefixString(path))
+	route := fmt.Sprintf("%s %s%s", method, IfSlashPrefixString(prefix), IfSlashPrefixString(path))
 
 	mergeHandler := handler
 
-	for _, m := range c.Middlewares {
+	for _, m := range c.ParentMiddlewares {
 		mergeHandler = m(mergeHandler)
 	}
 
-	c.Middlewares = []middleware{}
+	for _, m := range c.middlewares {
+		mergeHandler = m(mergeHandler)
+	}
+
+	c.middlewares = []middleware{}
 	c.mux[route] = mergeHandler
 }

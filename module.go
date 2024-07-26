@@ -32,6 +32,7 @@ func NewModule(opt ModuleOptions) *Module {
 
 func CreateApp(module *Module) *App {
 	return &App{
-		mux: module.mux,
+		module:      module,
+		Middlewares: []middleware{},
 	}
 }
