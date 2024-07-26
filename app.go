@@ -9,14 +9,9 @@ import (
 )
 
 type App struct {
-	Prefix      string
-	Middlewares []middleware
-	module      *Module
-	routes      map[string]bool
-}
-
-func (a *App) Use(middleware middleware) {
-	a.Middlewares = append(a.Middlewares, middleware)
+	Prefix string
+	module *Module
+	routes map[string]bool
 }
 
 func (a *App) routeExists(path string) bool {
@@ -33,16 +28,12 @@ func (a *App) Listen(port int) {
 	a.routes = map[string]bool{}
 
 	for k, v := range a.module.mux {
-		fmt.Printf("The path is register %s\n", k)
 		routes := strings.Split(k, " ")
 		path := routes[0] + " " + a.Prefix + routes[1]
+		fmt.Printf("The path is register %s\n", path)
 		router.Handle(path, v)
 		a.routes[path] = true
 	}
-
-	// Free allocation
-	a.module = nil
-	clear(a.Middlewares)
 
 	var handler = a.routeCheckerMiddleware(router)
 

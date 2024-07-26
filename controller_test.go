@@ -3,11 +3,14 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/saas0503/factory-api/guard"
 	"net/http"
+	"reflect"
 	"testing"
 )
 
 type UserController struct {
+	Base        BaseController
 	HelloWord   Handler `GET:"/hello" pagination:"true" guard:"apiKey"`
 	UpdateWorld Handler `PATCH:"/hello/:id" pagination:"true" guard:"apiKey"`
 }
@@ -25,11 +28,15 @@ func HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func TestController(t *testing.T) {
+	base := BaseController{
+		Prefix:      "abc",
+		Middlewares: []middleware{guard.Authentication},
+	}
 	userController := &UserController{
+		Base:      base,
 		HelloWord: HelloWorldHandler,
 	}
 
-	c := NewController("api")
-	c.Registry(userController)
-	fmt.Println(c.mux)
+	abc := reflect.ValueOf(userController).Elem().FieldByName("Base").Interface().(BaseController)
+	fmt.Println(&abc)
 }

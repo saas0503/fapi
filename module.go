@@ -1,12 +1,20 @@
 package api
 
+type Scope string
+
+const (
+	GLOBAL  Scope = "global"
+	REQUEST Scope = "request"
+)
+
 type Module struct {
-	mux Mux
+	Scope Scope
+	mux   Mux
 }
 
 type ModuleOptions struct {
 	Imports    []*Module
-	Controller []*Controller
+	Controller []interface{}
 }
 
 func NewModule(opt ModuleOptions) *Module {
@@ -15,24 +23,24 @@ func NewModule(opt ModuleOptions) *Module {
 		for k, v := range m.mux {
 			mux[k] = v
 		}
-		m = nil
+		if m.Scope == REQUEST {
+			m = nil
+		}
 	}
 
-	for _, ctrl := range opt.Controller {
-		for k, v := range ctrl.mux {
-			mux[k] = v
-		}
-		ctrl = nil
+	ctrl := Registry(opt.Controller...)
+	for k, v := range ctrl {
+		mux[k] = v
 	}
 
 	return &Module{
-		mux: mux,
+		mux:   mux,
+		Scope: REQUEST,
 	}
 }
 
 func CreateApp(module *Module) *App {
 	return &App{
-		module:      module,
-		Middlewares: []middleware{},
+		module: module,
 	}
 }
