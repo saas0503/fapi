@@ -1,10 +1,10 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"reflect"
-	"strings"
 
 	"github.com/saas0503/factory-api/guard"
 	"github.com/saas0503/factory-api/pipe"
@@ -22,66 +22,115 @@ const (
 	DELETE MethodKey = "DELETE"
 )
 
-type Controller struct {
-	ParentMiddlewares []middleware
-	middlewares       []middleware
-	mux               Mux
+type BaseController struct {
+	Prefix      string
+	Middlewares []middleware
 }
 
-func NewController(middlewares ...middleware) *Controller {
-	return &Controller{
-		ParentMiddlewares: middlewares,
-		middlewares:       []middleware{},
-		mux:               make(Mux),
-	}
-}
+func Registry(structs ...interface{}) Mux {
+	var mux = make(Mux)
 
-func (c *Controller) Registry(structs ...interface{}) {
 	for _, item := range structs {
+		var GlobalMiddlewares []middleware
+
+		// Get Base
+		base := reflect.ValueOf(item).Elem().FieldByName("Base").Interface().(BaseController)
+		prefix := base.Prefix
+		GlobalMiddlewares = base.Middlewares
+
 		ct := reflect.ValueOf(item).Elem()
-		prefix := ct.Type().Name()
-		prefix = strings.ToLower(prefix)
-		prefix = strings.ReplaceAll(prefix, "controller", "")
 		for i := 0; i < ct.NumField(); i++ {
-			val := ct.Field(i)
-			handler := val.Interface().(Handler)
 			field := ct.Type().Field(i)
+
+			if field.Name == "Base" {
+				continue
+			}
+
+			// Get middlewares
+			var middlewares []middleware
+
+			// Middlewares: check guard auth
 			auth := field.Tag.Get("guard")
 			if auth == "authentication" {
-				c.middlewares = append(c.middlewares, guard.Authentication)
+				middlewares = append(middlewares, guard.Authentication)
 			}
+			// Middlewares: check pagination
 			pagination := field.Tag.Get("pagination")
 			if pagination == "true" {
-				c.middlewares = append(c.middlewares, pipe.Pagination)
+				middlewares = append(middlewares, pipe.Pagination)
 			}
+
+			// Get route path
+			var routers []string
 			if field.Tag.Get(string(GET)) != "" {
-				c.register("GET", prefix, field.Tag.Get(string(GET)), http.HandlerFunc(handler))
+				routers = append(routers, "GET", field.Tag.Get(string(GET)))
 			} else if field.Tag.Get(string(POST)) != "" {
-				c.register("POST", prefix, field.Tag.Get(string(POST)), http.HandlerFunc(handler))
+				routers = append(routers, "POST", field.Tag.Get(string(POST)))
 			} else if field.Tag.Get(string(PUT)) != "" {
-				c.register("PUT", prefix, field.Tag.Get(string(PUT)), http.HandlerFunc(handler))
+				routers = append(routers, "PUT", field.Tag.Get(string(PUT)))
 			} else if field.Tag.Get(string(PATCH)) != "" {
-				c.register("PATCH", prefix, field.Tag.Get(string(PATCH)), http.HandlerFunc(handler))
+				routers = append(routers, "PATCH", field.Tag.Get(string(PATCH)))
 			} else if field.Tag.Get(string(DELETE)) != "" {
-				c.register("DELETE", prefix, field.Tag.Get(string(DELETE)), http.HandlerFunc(handler))
+				routers = append(routers, "DELETE", field.Tag.Get(string(DELETE)))
 			}
+
+			if len(routers) == 0 {
+				panic(errors.New("path register is invalid"))
+			}
+
+			// Get handler
+			val := ct.Field(i)
+			handler := val.Interface().(Handler)
+
+			// register
+			endpoint := register(registerOpt{
+				method:            routers[0],
+				prefix:            IfSlashPrefixString(prefix),
+				path:              routers[1],
+				GlobalMiddlewares: GlobalMiddlewares,
+				middlewares:       middlewares,
+				handler:           http.HandlerFunc(handler),
+			})
+
+			for k, v := range endpoint {
+				mux[k] = v
+			}
+
+			// Reset route middlewares
+			middlewares = []middleware{}
 		}
+
+		// Reset group middlewares
+		GlobalMiddlewares = []middleware{}
 	}
+
+	return mux
 }
 
-func (c *Controller) register(method string, prefix string, path string, handler http.Handler) {
-	route := fmt.Sprintf("%s %s%s", method, IfSlashPrefixString(prefix), IfSlashPrefixString(path))
+type registerOpt struct {
+	method            string
+	prefix            string
+	path              string
+	GlobalMiddlewares []middleware
+	middlewares       []middleware
+	handler           http.Handler
+}
 
-	mergeHandler := handler
+func register(opt registerOpt) Mux {
+	mux := make(Mux)
 
-	for _, m := range c.ParentMiddlewares {
+	route := fmt.Sprintf("%s %s%s", opt.method, IfSlashPrefixString(opt.prefix), IfSlashPrefixString(opt.path))
+	mergeHandler := opt.handler
+
+	for _, m := range opt.GlobalMiddlewares {
 		mergeHandler = m(mergeHandler)
 	}
 
-	for _, m := range c.middlewares {
+	for _, m := range opt.middlewares {
 		mergeHandler = m(mergeHandler)
 	}
 
-	c.middlewares = []middleware{}
-	c.mux[route] = mergeHandler
+	mux[route] = mergeHandler
+
+	return mux
 }
