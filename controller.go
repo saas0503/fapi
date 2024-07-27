@@ -98,10 +98,12 @@ func Registry(structs ...interface{}) Mux {
 
 			// Reset route middlewares
 			middlewares = []middleware{}
+			fmt.Print(middlewares)
 		}
 
 		// Reset group middlewares
 		GlobalMiddlewares = []middleware{}
+		fmt.Print(GlobalMiddlewares)
 	}
 
 	return mux
