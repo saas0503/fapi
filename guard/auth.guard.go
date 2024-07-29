@@ -5,9 +5,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/saas0503/factory-api/exception"
+	"github.com/saas0503/fapi/exception"
 
-	"github.com/saas0503/factory-api/config"
+	"github.com/saas0503/fapi/config"
 )
 
 type Token string

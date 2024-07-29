@@ -1,11 +1,11 @@
-package api
+package fapi
 
 import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/saas0503/factory-api/exception"
-	"github.com/saas0503/factory-api/pipe"
+	"github.com/saas0503/fapi/exception"
+	"github.com/saas0503/fapi/pipe"
 )
 
 type middleware func(http.Handler) http.Handler

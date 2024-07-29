@@ -1,9 +1,9 @@
-package api
+package fapi
 
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/saas0503/factory-api/guard"
+	"github.com/saas0503/fapi/guard"
 	"net/http"
 	"reflect"
 	"testing"

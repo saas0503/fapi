@@ -1,4 +1,4 @@
-package api
+package fapi
 
 type Scope string
 

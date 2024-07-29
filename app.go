@@ -1,13 +1,12 @@
-package api
+package fapi
 
 import (
 	"fmt"
+	"github.com/saas0503/fapi/config"
+	"github.com/saas0503/fapi/interceptor"
 	"log"
 	"net/http"
 	"strings"
-
-	"github.com/saas0503/factory-api/config"
-	"github.com/saas0503/factory-api/interceptor"
 )
 
 type App struct {

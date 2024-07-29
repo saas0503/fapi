@@ -1,4 +1,4 @@
-package api
+package fapi
 
 import (
 	"errors"
@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"reflect"
 
-	"github.com/saas0503/factory-api/guard"
-	"github.com/saas0503/factory-api/pipe"
+	"github.com/saas0503/fapi/guard"
+	"github.com/saas0503/fapi/pipe"
 )
 
 type Handler func(http.ResponseWriter, *http.Request)

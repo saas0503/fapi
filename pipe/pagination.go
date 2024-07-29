@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/saas0503/factory-api/exception"
+	"github.com/saas0503/fapi/exception"
 )
 
 type Token string

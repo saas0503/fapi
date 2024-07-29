@@ -1,4 +1,4 @@
-module github.com/saas0503/factory-api
+module github.com/saas0503/fapi
 
 go 1.22.0
 

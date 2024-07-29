@@ -1,4 +1,4 @@
-package api
+package fapi
 
 import "strings"
 
