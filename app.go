@@ -6,7 +6,6 @@ import (
 	"github.com/saas0503/fapi/interceptor"
 	"log"
 	"net/http"
-	"strings"
 )
 
 type App struct {
@@ -24,7 +23,7 @@ func (a *App) SetGlobalPrefix(prefix string) *App {
 	return a
 }
 
-func (a *App) InitConfig(path string) config.Config {
+func (a *App) InitConfig(path string) *config.Config {
 	cfg, err := config.Load(path)
 	if err != nil {
 		log.Fatalf("Error when load env: %v", err)
@@ -36,19 +35,11 @@ func (a *App) Listen(port int) {
 	router := http.NewServeMux()
 	a.routes = map[string]bool{}
 
-	for k, v := range a.module.mux {
-		routes := strings.Split(k, " ")
-		path := routes[0] + " " + a.Prefix + routes[1]
-		fmt.Printf("The path is register %s\n", path)
-		router.Handle(path, v)
-		a.routes[path] = true
-	}
-
-	var handler = a.routeCheckerMiddleware(router)
+	router.HandleFunc("/", a.ServeHTTP)
 
 	server := http.Server{
 		Addr:    fmt.Sprintf(":%d", port),
-		Handler: handler,
+		Handler: router,
 	}
 
 	log.Printf("Starting server on http://localhost:%d", port)
@@ -58,14 +49,18 @@ func (a *App) Listen(port int) {
 	}
 }
 
-func (a *App) routeCheckerMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Check if route exists
-		if a.routeExists(r.Method + " " + r.URL.Path) {
-			next.ServeHTTP(w, r)
-		} else {
-			interceptor.HandleNotFound(w, r)
-			return
+func (a *App) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	path := r.Method + " " + r.URL.Path
+	if a.routeExists(path) {
+		handler := a.module.mux[path]
+		err := handler(w, r)
+		if err != nil {
+			log.Printf("Error handling request: %v", err)
+			http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 		}
-	})
+	} else {
+		interceptor.HandleNotFound(w, r)
+		return
+	}
+
 }

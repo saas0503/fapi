@@ -5,12 +5,9 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
-
-	"github.com/saas0503/fapi/guard"
-	"github.com/saas0503/fapi/pipe"
 )
 
-type Handler func(http.ResponseWriter, *http.Request)
+type Handler func(http.ResponseWriter, *http.Request) error
 
 type MethodKey string
 
@@ -49,16 +46,16 @@ func Registry(structs ...interface{}) Mux {
 			// Get middlewares
 			var middlewares []middleware
 
-			// Middlewares: check guard auth
-			auth := field.Tag.Get("guard")
-			if auth == "authentication" {
-				middlewares = append(middlewares, guard.Authentication)
-			}
-			// Middlewares: check pagination
-			pagination := field.Tag.Get("pagination")
-			if pagination == "true" {
-				middlewares = append(middlewares, pipe.Pagination)
-			}
+			/*			// Middlewares: check guard auth
+						auth := field.Tag.Get("guard")
+						if auth == "authentication" {
+							middlewares = append(middlewares, guard.Authentication)
+						}
+						// Middlewares: check pagination
+						pagination := field.Tag.Get("pagination")
+						if pagination == "true" {
+							middlewares = append(middlewares, pipe.Pagination)
+						}*/
 
 			// Get route path
 			var routers []string
@@ -89,7 +86,7 @@ func Registry(structs ...interface{}) Mux {
 				path:              routers[1],
 				GlobalMiddlewares: GlobalMiddlewares,
 				middlewares:       middlewares,
-				handler:           http.HandlerFunc(handler),
+				handler:           handler,
 			})
 
 			for k, v := range endpoint {
@@ -115,7 +112,7 @@ type registerOpt struct {
 	path              string
 	GlobalMiddlewares []middleware
 	middlewares       []middleware
-	handler           http.Handler
+	handler           Handler
 }
 
 func register(opt registerOpt) Mux {

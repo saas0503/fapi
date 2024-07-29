@@ -8,9 +8,9 @@ import (
 	"github.com/saas0503/fapi/pipe"
 )
 
-type middleware func(http.Handler) http.Handler
+type middleware func(Handler) Handler
 
-type Mux map[string]http.Handler
+type Mux map[string]Handler
 
 type ResponseOptions struct {
 	Data    interface{}
