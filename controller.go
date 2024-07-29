@@ -3,10 +3,11 @@ package api
 import (
 	"errors"
 	"fmt"
-	"github.com/saas0503/factory-api/guard"
-	"github.com/saas0503/factory-api/pipe"
 	"net/http"
 	"reflect"
+
+	"github.com/saas0503/factory-api/guard"
+	"github.com/saas0503/factory-api/pipe"
 )
 
 type Handler func(http.ResponseWriter, *http.Request)
@@ -97,10 +98,12 @@ func Registry(structs ...interface{}) Mux {
 
 			// Reset route middlewares
 			middlewares = []middleware{}
+			fmt.Print(middlewares)
 		}
 
 		// Reset group middlewares
 		GlobalMiddlewares = []middleware{}
+		fmt.Print(GlobalMiddlewares)
 	}
 
 	return mux

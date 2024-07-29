@@ -2,17 +2,18 @@ package cache
 
 import (
 	"context"
+	"log"
+
 	"github.com/redis/go-redis/v9"
 	"github.com/saas0503/factory-api/config"
-	"log"
 )
 
 var RedisInstance *redis.Client
 
-func ConnectRedis(cfg config.ApiConfig) {
+func ConnectRedis(cfg config.Config) {
 	RedisInstance = redis.NewClient(&redis.Options{
-		Addr:     cfg.RedisUrl,
-		Password: "",
+		Addr:     cfg.RedisAddr,
+		Password: cfg.RedisPass,
 		DB:       0,
 	})
 

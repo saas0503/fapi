@@ -2,10 +2,12 @@ package api
 
 import (
 	"fmt"
-	"github.com/saas0503/factory-api/interceptor"
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/saas0503/factory-api/config"
+	"github.com/saas0503/factory-api/interceptor"
 )
 
 type App struct {
@@ -21,6 +23,14 @@ func (a *App) routeExists(path string) bool {
 func (a *App) SetGlobalPrefix(prefix string) *App {
 	a.Prefix = IfSlashPrefixString(prefix)
 	return a
+}
+
+func (a *App) InitConfig(path string) config.Config {
+	cfg, err := config.Load(path)
+	if err != nil {
+		log.Fatalf("Error when load env: %v", err)
+	}
+	return cfg
 }
 
 func (a *App) Listen(port int) {

@@ -3,10 +3,13 @@ package pipe
 import (
 	"context"
 	"errors"
-	"github.com/saas0503/factory-api/exception"
 	"net/http"
 	"strconv"
+
+	"github.com/saas0503/factory-api/exception"
 )
+
+type Token string
 
 const PaginationToken Token = "pagination"
 

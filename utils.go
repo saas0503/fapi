@@ -6,9 +6,10 @@ func IfSlashPrefixString(s string) string {
 	if s == "" {
 		return s
 	}
-	if strings.HasSuffix(s, "/") {
-		s = s[:len(s)-len("/")]
-	}
+	s = strings.TrimSuffix(s, "/")
+	// if strings.HasSuffix(s, "/") {
+	// 	s = s[:len(s)-len("/")]
+	// }
 	if strings.HasPrefix(s, "/") {
 		return ToFormat(s)
 	}

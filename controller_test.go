@@ -7,6 +7,8 @@ import (
 	"net/http"
 	"reflect"
 	"testing"
+
+	"github.com/saas0503/factory-api/guard"
 )
 
 type UserController struct {
