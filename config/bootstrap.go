@@ -1,6 +1,9 @@
 package config
 
-import "github.com/spf13/viper"
+import (
+	"github.com/spf13/viper"
+	"sync"
+)
 
 type Config struct {
 	Port      int    `mapstructure:"PORT"`
@@ -25,16 +28,28 @@ type Config struct {
 	RefreshTokenExpiresIn  int    `mapstructure:"REFRESH_TOKEN_EXPIRES_IN"`
 }
 
-func Load(path string) (config Config, err error) {
-	viper.AddConfigPath(path)
-	viper.SetConfigFile(".env")
-	viper.AutomaticEnv()
+func Load(path string) (config *Config, err error) {
+	var pool = &sync.Pool{
+		New: func() interface{} {
+			viper.AddConfigPath(path)
+			viper.SetConfigFile(".env")
+			viper.AutomaticEnv()
 
-	err = viper.ReadInConfig()
-	if err != nil {
-		return
+			err = viper.ReadInConfig()
+			var cfg Config
+			if err != nil {
+				panic(err)
+				return nil
+			}
+
+			err = viper.Unmarshal(&cfg)
+
+			return &cfg
+		},
 	}
 
-	err = viper.Unmarshal(&config)
+	config = pool.Get().(*Config)
+	pool.Put(config)
+
 	return
 }
