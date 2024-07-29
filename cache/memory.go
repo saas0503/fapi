@@ -1,10 +1,9 @@
 package cache
 
 import (
+	"github.com/saas0503/futils"
 	"sync"
 	"time"
-
-	common "github.com/saas0503/factory-common"
 )
 
 type item struct {
@@ -22,7 +21,7 @@ func New() *Cache {
 		data: make(map[string]item),
 	}
 
-	common.StartTimeStampUpdater()
+	futils.StartTimeStampUpdater()
 	go store.gc(1 * time.Second)
 	return store
 }
@@ -32,7 +31,7 @@ func (c *Cache) Get(key string) any {
 	c.RLock()
 	v, ok := c.data[key]
 	c.RUnlock()
-	if !ok || v.exp != 0 && v.exp <= common.Timestamp() {
+	if !ok || v.exp != 0 && v.exp <= futils.Timestamp() {
 		return nil
 	}
 	return v.val
@@ -42,7 +41,7 @@ func (c *Cache) Get(key string) any {
 func (c *Cache) Set(key string, val any, ttl time.Duration) {
 	var exp uint32
 	if ttl > 0 {
-		exp = uint32(ttl.Seconds()) + common.Timestamp()
+		exp = uint32(ttl.Seconds()) + futils.Timestamp()
 	}
 	i := item{exp, val}
 	c.Lock()
@@ -71,7 +70,7 @@ func (c *Cache) gc(sleep time.Duration) {
 	var expired []string
 
 	for range ticker.C {
-		ts := common.Timestamp()
+		ts := futils.Timestamp()
 		expired = expired[:0]
 		c.RLock()
 		for key, v := range c.data {

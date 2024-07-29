@@ -3,10 +3,10 @@ package guard
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/saas0503/futils"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	common "github.com/saas0503/factory-common"
 )
 
 type TokenDetails struct {
@@ -23,7 +23,7 @@ func GenerateToken(userid string, ttl time.Duration, privateKey string) (*TokenD
 		Token:     new(string),
 	}
 	*td.ExpiresIn = now.Add(ttl).Unix()
-	td.TokenUuid = common.UUID()
+	td.TokenUuid = futils.UUID()
 	td.UserID = userid
 
 	decodedPrivateKey, err := base64.StdEncoding.DecodeString(privateKey)

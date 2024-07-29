@@ -6,7 +6,7 @@ require (
 	github.com/go-playground/validator/v10 v10.22.0
 	github.com/golang-jwt/jwt/v5 v5.2.1
 	github.com/redis/go-redis/v9 v9.6.0
-	github.com/saas0503/factory-common v1.0.2
+	github.com/saas0503/futils v1.1.1
 	github.com/spf13/viper v1.19.0
 )
 
